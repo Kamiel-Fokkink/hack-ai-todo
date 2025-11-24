@@ -1,0 +1,76 @@
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+import os
+import json
+from datetime import datetime
+from .extraction import get_orq_client, extract
+
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+@app.post("/upload")
+async def upload_instruction(
+    file: UploadFile = File(...),
+    employer: str = Form(...)
+):
+    if not file.filename.endswith('.txt'):
+        raise HTTPException(status_code=400, detail="Only .txt files are allowed")
+
+    try:
+        # Read file content
+        content = await file.read()
+        text_content = content.decode('utf-8')
+
+        # Initialize Orq client
+        api_key = os.getenv("ORQ_API_KEY")
+        if not api_key:
+            raise HTTPException(status_code=500, detail="ORQ_API_KEY not found in environment")
+        
+        client = get_orq_client(api_key)
+
+        # Extract information
+        extraction_result = extract(client, text_content)
+
+        # Create result object
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        result = {
+            "employer": employer,
+            "upload_date": datetime.now().isoformat(),
+            "filename": file.filename,
+            "extraction": json.loads(extraction_result) if extraction_result.startswith('{') else extraction_result
+        }
+
+        # Save to file
+        safe_employer = "".join([c for c in employer if c.isalnum() or c in (' ', '-', '_')]).strip().replace(' ', '_')
+        filename = f"{timestamp}_{safe_employer}.json"
+        # Ensure data directory exists
+        DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "output")
+        os.makedirs(DATA_DIR, exist_ok=True)
+        file_path = os.path.join(DATA_DIR, filename)
+        
+        with open(file_path, 'w') as f:
+            json.dump(result, f, indent=2)
+
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Mount static files
+app.mount("/", StaticFiles(directory="server/static", html=True), name="static")
+
+if __name__ == "__main__":
+    uvicorn.run("server.main:app", host="0.0.0.0", port=8000, reload=True)

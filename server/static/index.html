@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instruction Extractor</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Instruction Extractor</h1>
+            <p>Upload your instruction file to extract insights.</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="employer">Employer Name</label>
+                        <input type="text" id="employer" name="employer" placeholder="e.g. Acme Corp" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file">Instruction File (.txt)</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="file" name="file" accept=".txt" required>
+                            <div class="file-upload-placeholder">
+                                <span class="icon">📄</span>
+                                <span class="text">Click to select a file</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn">
+                        <span class="btn-text">Upload & Extract</span>
+                        <div class="spinner hidden"></div>
+                    </button>
+                </form>
+            </div>
+
+            <div id="resultSection" class="card hidden">
+                <h2>Extraction Result</h2>
+                <div class="result-meta">
+                    <p><strong>Employer:</strong> <span id="resEmployer"></span></p>
+                    <p><strong>Date:</strong> <span id="resDate"></span></p>
+                </div>
+                <pre id="resContent"></pre>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

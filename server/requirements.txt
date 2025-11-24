@@ -1,2 +1,6 @@
 orq_ai_sdk
 python-dotenv
+fastapi
+uvicorn
+python-multipart
+aiofiles
