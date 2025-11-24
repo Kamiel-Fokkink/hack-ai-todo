@@ -1,0 +1,23 @@
+{
+  "employer": "Kamiel",
+  "upload_date": "2025-11-24T15:01:29.475344",
+  "filename": "example1.txt",
+  "sender": "Bob, Head of Cleaning, Tolkie",
+  "recipient": "Koen",
+  "location": "Office workspace",
+  "daily_tasks": [
+    "Ensure all waste bins in common areas are emptied by the end of each day",
+    "Wipe down high-touch surfaces in the kitchen and break room, such as countertops and the microwave handle, before leaving for the day",
+    "Clean up personal messes at desk"
+  ],
+  "weekly_tasks": [
+    "Vacuum the main office carpet every Monday morning",
+    "Clean and disinfect all conference room tables and chairs on Tuesday and Thursday",
+    "Clean the windows in the main reception area by the end of the day on Friday"
+  ],
+  "important_notes": [
+    "Refer to the cleaning SOP document for detailed instructions on specific tasks, including the use of cleaning supplies and equipment"
+  ],
+  "contact_information": "Contact Tolkie at 0012345678910 for any issues or questions",
+  "purpose": "Maintaining a clean and healthy environment for everyone"
+}

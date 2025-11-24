@@ -18,3 +18,6 @@ for the end user and make meaningful keys.
 For each key you will then append all the information you get from the input.
 The value is not the final result to the end user. So make it as complete with accurate information directly from the input.
 This will then be used to simplify everything.
+
+tolkie-hackathon
+Hackathon1!111
