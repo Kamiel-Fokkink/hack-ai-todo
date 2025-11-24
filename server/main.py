@@ -119,7 +119,22 @@ async def simplify_content(request: SimplifyRequest):
         # Simplify content
         simplified_content = simplify(client, request.language, request.level, content_to_simplify)
 
-        return {"simplified_content": simplified_content}
+        # Parse simplification result
+        try:
+            # Find JSON object boundaries
+            start_index = simplified_content.find('{')
+            end_index = simplified_content.rfind('}')
+            
+            if start_index != -1 and end_index != -1 and end_index > start_index:
+                json_str = simplified_content[start_index : end_index + 1]
+                parsed_content = json.loads(json_str)
+                return parsed_content
+            else:
+                # No JSON object found
+                return {"simplified_content": simplified_content}
+        except json.JSONDecodeError:
+            # Fallback if parsing fails, return as is but wrapped
+            return {"simplified_content": simplified_content}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

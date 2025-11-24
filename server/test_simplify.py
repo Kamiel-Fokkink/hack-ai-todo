@@ -13,7 +13,6 @@ def test_simplify():
         print(f"Response: {response.json()}")
         
         if response.status_code == 200:
-            print(response.json())
             print("Test PASSED")
         else:
             print("Test FAILED")
