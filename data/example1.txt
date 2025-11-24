@@ -1,19 +1,19 @@
 Body:
-Hi [Name],
+Hi Koen,
 This email outlines the cleaning tasks for the upcoming week and provides instructions for our team. Our goal is to maintain a clean and healthy environment for everyone.
 Daily Tasks:
 Please ensure all waste bins in common areas are emptied by the end of each day.
 Wipe down high-touch surfaces in the kitchen and break room, such as countertops and the microwave handle, before leaving for the day.
 Please remember to clean up personal messes at your desk. 
 Weekly Tasks:
-[Team Member Name]: Please vacuum the main office carpet every Monday morning.
-[Team Member Name]: Please clean and disinfect all conference room tables and chairs on Tuesday and Thursday.
-[Team Member Name]: Please clean the windows in the main reception area by the end of the day on Friday.
+- Please vacuum the main office carpet every Monday morning.
+- Please clean and disinfect all conference room tables and chairs on Tuesday and Thursday.
+- Please clean the windows in the main reception area by the end of the day on Friday.
 Important Notes:
 Please refer to the cleaning SOP document for detailed instructions on specific tasks, including the use of cleaning supplies and equipment.
-If you encounter any issues or have questions about these instructions, please contact [Your Name/Supervisor's Name] at [Your Phone Number/Email]. 
+If you encounter any issues or have questions about these instructions, please contact Tolkie at 0012345678910. 
 Thank you for your cooperation in keeping our workspace clean.
 Best regards,
-[Your Name]
-[Your Title]
-[Your Company]
+Bob
+Head of Cleaning
+Tolkie
