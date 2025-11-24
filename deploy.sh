@@ -17,7 +17,7 @@ echo "Deploying to $VM_USER@$VM_IP..."
 # 1. Prepare files
 echo "Zipping files..."
 rm -f deploy.zip
-zip -r deploy.zip server .env
+zip -r deploy.zip server prompt .env
 
 # 2. Copy files to VM
 echo "Copying files to VM..."

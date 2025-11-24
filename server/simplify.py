@@ -1,7 +1,8 @@
 from orq_ai_sdk import Orq
 from dotenv import load_dotenv
+import os
 
-EXTRACTION_DEPLOYMENT = "instructions_extraction"
+SIMPLIFY_DEPLOYMENT = "instructions_user_simplify"
 
 load_dotenv()
 
@@ -16,9 +17,19 @@ def get_orq_client(api_key: str) -> Orq:
         )
 
 
-def extract(client: Orq, content: str) -> str:
+def simplify(client: Orq, language: str, level: str, content: str) -> str:
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    guidelines_path = os.path.join(project_root, "prompt", "user", "language", f"{level.lower()}.txt")
+    with open(guidelines_path, "r") as f:
+        guidelines = f.read()
+
     generation = client.deployments.invoke(
-        key=EXTRACTION_DEPLOYMENT,
+        key=SIMPLIFY_DEPLOYMENT,
+        inputs={
+            "language": language,
+            "level": level,
+            "guidelines": guidelines
+        },
         messages=[
             {"role": "user", "content": content}
         ]

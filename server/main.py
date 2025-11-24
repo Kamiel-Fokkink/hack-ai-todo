@@ -4,7 +4,14 @@ import uvicorn
 import os
 import json
 from datetime import datetime
+from typing import Optional
+from pydantic import BaseModel
 from .extraction import get_orq_client, extract
+from .simplify import simplify
+
+class SimplifyRequest(BaseModel):
+    language: str
+    level: str
 
 from fastapi.staticfiles import StaticFiles
 
@@ -82,6 +89,37 @@ async def upload_instruction(
             json.dump(result, f, indent=2)
 
         return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/simplify")
+async def simplify_content(request: SimplifyRequest):
+    try:
+        # Initialize Orq client
+        api_key = os.getenv("ORQ_API_KEY")
+        if not api_key:
+            raise HTTPException(status_code=500, detail="ORQ_API_KEY not found in environment")
+        
+        client = get_orq_client(api_key)
+
+        # Find latest file in data/output
+        DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "output")
+        files = [os.path.join(DATA_DIR, f) for f in os.listdir(DATA_DIR) if f.endswith('.json')]
+        if not files:
+            raise HTTPException(status_code=404, detail="No output files found to simplify")
+        
+        latest_file = max(files, key=os.path.getctime)
+        
+        with open(latest_file, 'r') as f:
+            file_content = json.load(f)
+            # Convert JSON back to string for simplification
+            content_to_simplify = json.dumps(file_content, indent=2)
+
+        # Simplify content
+        simplified_content = simplify(client, request.language, request.level, content_to_simplify)
+
+        return {"simplified_content": simplified_content}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
