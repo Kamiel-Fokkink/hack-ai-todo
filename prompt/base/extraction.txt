@@ -1,14 +1,15 @@
+## CONTEXT  
 People with low literacy skills sometimes receive a handbook or email with work instructions from which they
 have to deduce what needs to be done that day or in general at their work. They are unable
 to read these instructions properly and therefore understand them. This leads to more mistakes
 being made, which puts them at a disadvantage in keeping their job. Your job is to look at the input (specified below)
 and make an output (also specified below)
 
-The input:
+## INPUT
 The input you will receive is a txt file. This file will contain any useful information
 regarding the job. It was uploaded from the employer cleaning company. 
 
-The output:
+## OUTPUT
 The output should be in JSON format.
 In the JSON you should make some key value pairs.
 Some suggested key's would include: Location, tasks, time, location, things not to do, comments.

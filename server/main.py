@@ -44,13 +44,30 @@ async def upload_instruction(
         # Extract information
         extraction_result = extract(client, text_content)
 
+        # Parse extraction result
+        try:
+            # Remove markdown code blocks if present
+            clean_result = extraction_result.strip()
+            if clean_result.startswith("```json"):
+                clean_result = clean_result[7:]
+            elif clean_result.startswith("```"):
+                clean_result = clean_result[3:]
+            
+            if clean_result.endswith("```"):
+                clean_result = clean_result[:-3]
+            
+            parsed_extraction = json.loads(clean_result.strip())
+        except json.JSONDecodeError:
+            # Fallback if parsing fails
+            parsed_extraction = {"raw_extraction": extraction_result}
+
         # Create result object
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         result = {
             "employer": employer,
             "upload_date": datetime.now().isoformat(),
             "filename": file.filename,
-            "extraction": json.loads(extraction_result) if extraction_result.startswith('{') else extraction_result
+            **parsed_extraction
         }
 
         # Save to file
