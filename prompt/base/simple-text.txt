@@ -1,3 +1,7 @@
-[Context - what you are you job]
+People with low literacy skills sometimes receive a handbook or email with work instructions from which they
+have to deduce what needs to be done that day or in general at their work. They are unable
+to read these instructions properly and therefore understand them. This leads to more mistakes
+being made, which puts them at a disadvantage in keeping their job. Your job is to look at the input (specified below)
+and make an output (also specified below)
 [Input - txt file] [some variables]
 [Output - TBD]
