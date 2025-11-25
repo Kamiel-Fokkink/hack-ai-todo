@@ -68,12 +68,13 @@ async def upload_instruction(
             # Fallback if parsing fails
             parsed_extraction = {"raw_extraction": extraction_result}
 
-        # Create result object
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         result = {
-            "employer": employer,
-            "upload_date": datetime.now().isoformat(),
-            "filename": file.filename,
+            "metadata": {
+                "employer": employer,
+                "upload_date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "filename": file.filename
+            },
             **parsed_extraction
         }
 
@@ -113,28 +114,24 @@ async def simplify_content(request: SimplifyRequest):
         
         with open(latest_file, 'r') as f:
             file_content = json.load(f)
-            # Convert JSON back to string for simplification
+            metadata = file_content.pop("metadata", {})
             content_to_simplify = json.dumps(file_content, indent=2)
 
-        # Simplify content
         simplified_content = simplify(client, request.language, request.level, content_to_simplify)
 
-        # Parse simplification result
         try:
-            # Find JSON object boundaries
             start_index = simplified_content.find('{')
             end_index = simplified_content.rfind('}')
             
             if start_index != -1 and end_index != -1 and end_index > start_index:
                 json_str = simplified_content[start_index : end_index + 1]
                 parsed_content = json.loads(json_str)
+                parsed_content["metadata"] = metadata
                 return parsed_content
             else:
-                # No JSON object found
-                return {"simplified_content": simplified_content}
+                return {"metadata": metadata, "simplified_content": simplified_content}
         except json.JSONDecodeError:
-            # Fallback if parsing fails, return as is but wrapped
-            return {"simplified_content": simplified_content}
+            return {"metadata": metadata, "simplified_content": simplified_content}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

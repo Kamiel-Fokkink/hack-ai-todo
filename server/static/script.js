@@ -72,16 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayResult(data) {
-        resEmployer.textContent = data.employer;
-        resDate.textContent = new Date(data.upload_date).toLocaleString();
+        resEmployer.textContent = data.metadata.employer;
+        resDate.textContent = new Date(data.metadata.upload_date).toLocaleString();
 
-        // Format JSON nicely
-        const formattedJson = JSON.stringify(data.extraction, null, 2);
+        const formattedJson = JSON.stringify(data, null, 2);
         resContent.textContent = formattedJson;
 
         resultSection.classList.remove('hidden');
 
-        // Scroll to result
         resultSection.scrollIntoView({ behavior: 'smooth' });
     }
 });
