@@ -8,6 +8,7 @@ from typing import Optional
 from pydantic import BaseModel
 from .extraction import get_orq_client, extract
 from .simplify import simplify
+from .taskify import classify_tasks
 
 class SimplifyRequest(BaseModel):
     language: str
@@ -122,12 +123,20 @@ async def simplify_content(request: SimplifyRequest):
         try:
             start_index = simplified_content.find('{')
             end_index = simplified_content.rfind('}')
-            
+
             if start_index != -1 and end_index != -1 and end_index > start_index:
                 json_str = simplified_content[start_index : end_index + 1]
                 parsed_content = json.loads(json_str)
-                parsed_content["metadata"] = metadata
-                return parsed_content
+
+                # Classify which sections contain tasks
+                task_classification = classify_tasks(client, parsed_content)
+
+                # Return with metadata and task classification
+                return {
+                    "content": parsed_content,
+                    "task_classification": task_classification,
+                    "metadata": metadata
+                }
             else:
                 return {"metadata": metadata, "simplified_content": simplified_content}
         except json.JSONDecodeError:

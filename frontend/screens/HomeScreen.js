@@ -117,7 +117,10 @@ export default function HomeScreen() {
           {/* Display API Response Inline */}
           {apiResponse && (
             <View style={styles.responseContainer}>
-              <ExpandableJsonBlocks jsonData={apiResponse} />
+              <ExpandableJsonBlocks
+                jsonData={apiResponse.content || apiResponse}
+                taskClassification={apiResponse.task_classification || {}}
+              />
             </View>
           )}
         </>

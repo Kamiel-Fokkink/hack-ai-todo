@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { renderTextWithLargeEmojis } from './emojiRenderer';
+import TaskChecklistRenderer, { TaskChecklistArray, TaskChecklistNested } from './TaskChecklistRenderer';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -23,42 +24,70 @@ function formatTitle(key) {
 
 /**
  * Renders nested content (arrays, strings, objects) without expansion
+ * If hasTasks is true, renders with checkboxes
  */
-function renderNestedContent(value) {
+function renderNestedContent(value, hasTasks = false) {
   if (Array.isArray(value)) {
-    return (
-      <View style={styles.listContainer}>
-        {value.map((item, index) => (
-          <View key={index} style={styles.listItem}>
-            <Text style={styles.bulletPoint}>•</Text>
-            {renderTextWithLargeEmojis(String(item), styles.listItemText)}
-          </View>
-        ))}
-      </View>
-    );
+    if (hasTasks) {
+      // Render array items with checkboxes
+      return <TaskChecklistArray items={value} style={styles.listItemText} />;
+    } else {
+      // Render normally with bullets
+      return (
+        <View style={styles.listContainer}>
+          {value.map((item, index) => (
+            <View key={index} style={styles.listItem}>
+              <Text style={styles.bulletPoint}>•</Text>
+              {renderTextWithLargeEmojis(String(item), styles.listItemText)}
+            </View>
+          ))}
+        </View>
+      );
+    }
   } else if (typeof value === 'string') {
-    return renderTextWithLargeEmojis(value, styles.contentText);
+    if (hasTasks) {
+      // Render string with checkboxes (split by lines)
+      return <TaskChecklistRenderer text={value} style={styles.contentText} />;
+    } else {
+      // Render normally
+      return renderTextWithLargeEmojis(value, styles.contentText);
+    }
   } else if (typeof value === 'object' && value !== null) {
-    // Render nested objects as key-value pairs (no expansion)
-    return (
-      <View style={styles.nestedObject}>
-        {Object.keys(value).map((nestedKey) => (
-          <View key={nestedKey} style={styles.nestedItem}>
-            <Text style={styles.nestedKey}>{formatTitle(nestedKey)}:</Text>
-            {renderTextWithLargeEmojis(String(value[nestedKey]), styles.nestedValue)}
-          </View>
-        ))}
-      </View>
-    );
+    if (hasTasks) {
+      // Render nested object values with checkboxes (keys stay as labels)
+      return (
+        <TaskChecklistNested
+          object={value}
+          keyStyle={styles.nestedKey}
+          valueStyle={styles.nestedValue}
+        />
+      );
+    } else {
+      // Render nested objects as key-value pairs (no expansion)
+      return (
+        <View style={styles.nestedObject}>
+          {Object.keys(value).map((nestedKey) => (
+            <View key={nestedKey} style={styles.nestedItem}>
+              <Text style={styles.nestedKey}>{formatTitle(nestedKey)}:</Text>
+              {renderTextWithLargeEmojis(String(value[nestedKey]), styles.nestedValue)}
+            </View>
+          ))}
+        </View>
+      );
+    }
   } else {
-    return renderTextWithLargeEmojis(String(value), styles.contentText);
+    if (hasTasks) {
+      return <TaskChecklistRenderer text={String(value)} style={styles.contentText} />;
+    } else {
+      return renderTextWithLargeEmojis(String(value), styles.contentText);
+    }
   }
 }
 
 /**
  * Single Expandable Block Component
  */
-function ExpandableBlock({ title, children, isExpanded, onToggle }) {
+function ExpandableBlock({ title, children, isExpanded, onToggle, hasTasks }) {
   const rotateAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
 
   React.useEffect(() => {
@@ -82,13 +111,13 @@ function ExpandableBlock({ title, children, isExpanded, onToggle }) {
   return (
     <View style={styles.blockContainer}>
       <TouchableOpacity
-        style={styles.blockHeader}
+        style={[styles.blockHeader, hasTasks && styles.blockHeaderWithTasks]}
         onPress={handleToggle}
         activeOpacity={0.7}
       >
-        <Text style={styles.blockTitle}>{title}</Text>
+        <Text style={[styles.blockTitle, hasTasks && styles.blockTitleWithTasks]}>{title}</Text>
         <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-          <Text style={styles.expandIcon}>▼</Text>
+          <Text style={[styles.expandIcon, hasTasks && styles.expandIconWithTasks]}>▼</Text>
         </Animated.View>
       </TouchableOpacity>
 
@@ -104,7 +133,7 @@ function ExpandableBlock({ title, children, isExpanded, onToggle }) {
 /**
  * Main Component: Renders all JSON keys as expandable blocks
  */
-export default function ExpandableJsonBlocks({ jsonData }) {
+export default function ExpandableJsonBlocks({ jsonData, taskClassification = {} }) {
   const [expandedBlocks, setExpandedBlocks] = useState({});
 
   if (!jsonData || typeof jsonData !== 'object') {
@@ -126,6 +155,7 @@ export default function ExpandableJsonBlocks({ jsonData }) {
           const value = jsonData[key];
           const title = formatTitle(key);
           const isExpanded = expandedBlocks[key] || false;
+          const hasTasks = taskClassification[key] || false;
 
           return (
             <ExpandableBlock
@@ -133,8 +163,9 @@ export default function ExpandableJsonBlocks({ jsonData }) {
               title={title}
               isExpanded={isExpanded}
               onToggle={() => toggleBlock(key)}
+              hasTasks={hasTasks}
             >
-              {renderNestedContent(value)}
+              {renderNestedContent(value, hasTasks)}
             </ExpandableBlock>
           );
         })}
@@ -161,16 +192,25 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
+  blockHeaderWithTasks: {
+    backgroundColor: '#E8F5E9',
+  },
   blockTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#007AFF',
     flex: 1,
   },
+  blockTitleWithTasks: {
+    color: '#2E7D32',
+  },
   expandIcon: {
     fontSize: 14,
     color: '#007AFF',
     marginLeft: 8,
+  },
+  expandIconWithTasks: {
+    color: '#2E7D32',
   },
   blockContent: {
     padding: 16,

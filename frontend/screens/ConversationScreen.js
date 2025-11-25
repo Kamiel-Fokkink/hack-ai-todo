@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, Animated, Easing, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import Markdown from 'react-native-markdown-display';
 import UserDataService from '../services/UserDataService';
 import HelpService from '../services/HelpService';
-import { jsonToMarkdown } from '../utils/jsonToMarkdown';
 import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
+import ExpandableJsonBlocks from '../utils/ExpandableJsonBlock';
 
 export default function ConversationScreen() {
   const [userData, setUserData] = useState({ name: '', surname: '', languages: [] });
@@ -158,9 +157,10 @@ export default function ConversationScreen() {
           {/* Display API Response Inline */}
           {apiResponse && (
             <View style={styles.responseContainer}>
-              <Markdown style={markdownStyles}>
-                {jsonToMarkdown(apiResponse)}
-              </Markdown>
+              <ExpandableJsonBlocks
+                jsonData={apiResponse.content || apiResponse}
+                taskClassification={apiResponse.task_classification || {}}
+              />
             </View>
           )}
 
@@ -394,12 +394,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   responseContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
     marginTop: 20,
     width: '100%',
-    // maxWidth: 400,
   },
   // New styles for voice recording UI
   recordingContainer: {
@@ -424,34 +420,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-// Markdown-specific styles
-const markdownStyles = {
-  heading2: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  paragraph: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 12,
-    lineHeight: 24,
-  },
-  bullet_list: {
-    marginBottom: 12,
-  },
-  list_item: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 6,
-    lineHeight: 24,
-  },
-  body: {
-    fontSize: 16,
-    color: '#333',
-  },
-};
-
