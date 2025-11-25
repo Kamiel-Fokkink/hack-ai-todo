@@ -14,6 +14,10 @@ class SimplifyRequest(BaseModel):
     language: str
     level: str
 
+class TaskRequest(BaseModel):
+    name: str
+    task: str
+
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
@@ -144,6 +148,10 @@ async def simplify_content(request: SimplifyRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/task")
+async def submit_task(request: TaskRequest):
+    return {"status": "success", "name": request.name, "task": request.task}
 
 # Mount static files
 app.mount("/", StaticFiles(directory="server/static", html=True), name="static")

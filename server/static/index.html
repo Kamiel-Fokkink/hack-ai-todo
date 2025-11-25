@@ -14,7 +14,13 @@
             <p>Upload your instruction file to extract insights.</p>
         </header>
 
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="instructions">Instructions</button>
+            <button class="tab-btn" data-tab="tasks">Tasks</button>
+        </div>
+
         <main>
+            <div id="instructionsTab" class="tab-content active">
             <div class="card">
                 <form id="uploadForm">
                     <div class="form-group">
@@ -47,6 +53,16 @@
                     <p><strong>Date:</strong> <span id="resDate"></span></p>
                 </div>
                 <pre id="resContent"></pre>
+            </div>
+            </div>
+
+            <div id="tasksTab" class="tab-content">
+                <div class="card">
+                    <h2>Completed Tasks</h2>
+                    <div id="tasksList" class="tasks-list">
+                        <p class="empty-state">No tasks completed yet.</p>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

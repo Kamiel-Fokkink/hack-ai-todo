@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, Alert, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, Alert, ScrollView, Animated, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import UserDataService from '../services/UserDataService';
 import HelpService from '../services/HelpService';
@@ -86,7 +86,6 @@ export default function HomeScreen() {
         style={styles.logo}
         resizeMode="contain"
       />
-      <Text style={styles.greeting}>{getGreeting()}</Text>
       
       {userData.languages && userData.languages.length > 0 ? (
         <>

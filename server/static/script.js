@@ -9,6 +9,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const resEmployer = document.getElementById('resEmployer');
     const resDate = document.getElementById('resDate');
     const resContent = document.getElementById('resContent');
+    
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const tasksList = document.getElementById('tasksList');
+    
+    let completedTasks = [];
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.dataset.tab;
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById(targetTab + 'Tab').classList.add('active');
+        });
+    });
+
+    window.addTask = function(name, task) {
+        completedTasks.push({ name, task, timestamp: new Date() });
+        renderTasks();
+    };
+
+    function renderTasks() {
+        if (completedTasks.length === 0) {
+            tasksList.innerHTML = '<p class="empty-state">No tasks completed yet.</p>';
+            return;
+        }
+        
+        tasksList.innerHTML = completedTasks.map(t => `
+            <div class="task-item">
+                <span class="task-checkbox">✓</span>
+                <div class="task-details">
+                    <div class="task-text">${t.task}</div>
+                    <div class="task-person">by ${t.name}</div>
+                </div>
+            </div>
+        `).join('');
+    }
 
     // Update file input text when file is selected
     fileInput.addEventListener('change', (e) => {
