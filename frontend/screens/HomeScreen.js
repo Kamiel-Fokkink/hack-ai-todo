@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, Alert, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, Alert, ScrollView, Animated } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import UserDataService from '../services/UserDataService';
 import HelpService from '../services/HelpService';
@@ -37,16 +37,15 @@ export default function HomeScreen() {
     }
   };
 
-  const getGreeting = () => {
-    const fullName = `${userData.name} ${userData.surname}`.trim();
-    return fullName ? `Hello, ${fullName}!` : 'Hello!';
-  };
+  // Auto-fetch help when language is selected
+  useEffect(() => {
+    if (selectedLanguage) {
+      handleGetHelp();
+    }
+  }, [selectedLanguage]);
 
   const handleGetHelp = async () => {
-    if (!selectedLanguage) {
-      Alert.alert('Error', 'Please add a language in Settings first!');
-      return;
-    }
+    if (!selectedLanguage) return;
 
     try {
       setLoading(true);
@@ -61,7 +60,7 @@ export default function HomeScreen() {
 
     } catch (error) {
       console.error('Error in handleGetHelp:', error);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      // Optional: Don't show alert on auto-fetch failure to avoid annoyance, or show a subtle error
     } finally {
       setLoading(false);
     }
@@ -72,7 +71,7 @@ export default function HomeScreen() {
     setShowLanguageModal(false);
   };
 
-  if (loading) {
+  if (loading && !userData.languages) {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#007AFF" />
@@ -82,47 +81,20 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.greeting}>{getGreeting()}</Text>
       
       {userData.languages && userData.languages.length > 0 ? (
         <>
-          <View style={styles.helpSection}>
-            <TouchableOpacity 
-              style={styles.getHelpButton}
-              onPress={handleGetHelp}
-            >
-              <Text style={styles.getHelpButtonText}>Get Help</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.languageSelector}
-              onPress={() => setShowLanguageModal(true)}
-            >
-              {selectedLanguage ? (
-                <View style={styles.languageSelectorContent}>
-                  <Text style={styles.flagEmoji}>{getLanguageFlag(selectedLanguage.language)}</Text>
-                  {renderLevelDots(selectedLanguage.level, {
-                    container: styles.dotsContainerInline,
-                    dot: styles.dotInline,
-                    dotFilled: styles.dotFilledInline,
-                  })}
-                </View>
-              ) : (
-                <Text style={styles.languageSelectorText}>Select</Text>
-              )}
-              <Text style={styles.dropdownIcon}>▼</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Display API Response Inline */}
-          {apiResponse && (
+          {/* Display API Response Inline or Skeleton */}
+          {loading ? (
+            <SkeletonLoader />
+          ) : apiResponse ? (
             <View style={styles.responseContainer}>
               <ExpandableJsonBlocks
                 jsonData={apiResponse.content || apiResponse}
                 taskClassification={apiResponse.task_classification || {}}
               />
             </View>
-          )}
+          ) : null}
         </>
       ) : (
         <Text style={styles.noLanguagesText}>
@@ -348,4 +320,52 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: '100%',
   },
+  skeletonContainer: {
+    width: '100%',
+    marginTop: 20,
+    gap: 15,
+  },
+  skeletonBlock: {
+    height: 100,
+    backgroundColor: '#E1E9EE',
+    borderRadius: 12,
+    width: '100%',
+  },
+  skeletonLine: {
+    height: 20,
+    backgroundColor: '#E1E9EE',
+    borderRadius: 4,
+    marginBottom: 10,
+    width: '60%',
+  },
 });
+
+const SkeletonLoader = () => {
+  const opacity = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.7,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <View style={styles.skeletonContainer}>
+      <Animated.View style={[styles.skeletonLine, { opacity, width: '40%', alignSelf: 'center', marginBottom: 20 }]} />
+      {[1, 2, 3].map((i) => (
+        <Animated.View key={i} style={[styles.skeletonBlock, { opacity }]} />
+      ))}
+    </View>
+  );
+};
