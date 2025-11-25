@@ -1,6 +1,6 @@
 // API Service for help-related endpoints
 // TODO: Update API_BASE_URL when backend is ready
-const API_BASE_URL = ''; // e.g., 'https://api.example.com'
+const API_BASE_URL = 'http://20.224.45.128:80'; // e.g., 'https://api.example.com'
 
 class HelpService {
   /**
@@ -12,10 +12,10 @@ class HelpService {
   async requestHelp(lang, level) {
     try {
       // TODO: Replace with actual endpoint when available
-      const endpoint = `${API_BASE_URL}/help`; // Placeholder endpoint
+      const endpoint = `${API_BASE_URL}/simplify`; // Placeholder endpoint
       
       const requestBody = {
-        lang: lang,
+        language: lang,
         level: level
       };
 
@@ -23,7 +23,6 @@ class HelpService {
       console.log('Endpoint:', endpoint || '(not configured)');
 
       // Uncomment when backend is ready:
-      /*
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -37,38 +36,8 @@ class HelpService {
       }
 
       const data = await response.json();
-      return { success: true, data };
-      */
-
-      // Temporary mock response for development
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            employer: "Example Company",
-            upload_date: new Date().toISOString(),
-            filename: "help_instructions.txt",
-            sender: "Support Team",
-            recipient: "User",
-            location: "Mobile App",
-            daily_tasks: [
-              "Review your language learning progress",
-              "Practice speaking with native speakers",
-              "Complete vocabulary exercises"
-            ],
-            weekly_tasks: [
-              "Take a practice test to assess your level",
-              "Watch a movie or TV show in your target language",
-              "Read an article or book chapter"
-            ],
-            important_notes: [
-              "Consistency is key to language learning success",
-              "Don't be afraid to make mistakes - they're part of the learning process"
-            ],
-            contact_information: `Contact support at support@example.com for any questions about ${lang} (${level})`,
-            purpose: `Helping you improve your ${lang} skills at ${level} level`
-          });
-        }, 500); // Simulate network delay
-      });
+      console.log('Response:', data);
+      return data;
 
     } catch (error) {
       console.error('Error requesting help:', error);
