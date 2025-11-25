@@ -184,6 +184,11 @@ async def submit_task(request: TaskRequest):
 async def list_tasks():
     return {"tasks": task_store}
 
+@app.post("/tasks/reset")
+async def reset_tasks():
+    task_store.clear()
+    return {"status": "cleared", "tasks": task_store}
+
 # Mount static files
 app.mount("/", StaticFiles(directory="server/static", html=True), name="static")
 

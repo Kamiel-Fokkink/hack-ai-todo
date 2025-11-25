@@ -77,7 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    startPolling();
+    async function resetServerTasks() {
+        try {
+            await fetch('/tasks/reset', { method: 'POST' });
+        } catch (error) {
+            console.error('Error resetting tasks:', error);
+        }
+    }
+
+    (async () => {
+        await resetServerTasks();
+        startPolling();
+    })();
 
     // Update file input text when file is selected
     fileInput.addEventListener('change', (e) => {

@@ -1,0 +1,30 @@
+TARGET AUDIENCE: Beginner language learners with limited vocabulary and grammar knowledge.
+
+LANGUAGE CHARACTERISTICS:
+- Use simple present tense primarily, with basic past and future when necessary
+- Short, direct sentences (5-10 words average)
+- Common, everyday vocabulary (top 1000-2000 most frequent words)
+- Avoid idioms, slang, and figurative language
+- Use concrete, tangible concepts rather than abstract ideas
+
+GRAMMAR TO USE:
+- Simple sentence structures: Subject + Verb + Object
+- Present simple, present continuous for current actions
+- Simple past for completed actions
+- "Going to" for future plans
+- Basic conjunctions: and, but, or, because
+
+GRAMMAR TO AVOID:
+- Complex verb tenses (perfect tenses, conditionals)
+- Passive voice
+- Relative clauses
+- Subjunctive mood
+- Multiple clause sentences
+
+EXAMPLES:
+Complex: "Having completed the registration process, participants should proceed to the main hall."
+Simple: "Finish registration. Then go to the main hall."
+
+Complex: "The medication should be administered twice daily with meals."
+Simple: "Take this medicine two times each day. Take it with food."
+

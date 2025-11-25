@@ -1,0 +1,31 @@
+TARGET AUDIENCE: Advanced language learners who can understand sophisticated content and nuanced communication.
+
+LANGUAGE CHARACTERISTICS:
+- Full range of vocabulary including specialized terms
+- Natural, varied sentence structures
+- Can handle abstract and complex ideas
+- Idiomatic expressions used naturally
+- Longer, more sophisticated sentences when appropriate
+
+GRAMMAR TO USE:
+- All tenses and aspects as needed
+- Passive and active voice naturally mixed
+- Complex sentence structures with multiple clauses
+- Advanced conjunctions and transitions
+- Subjunctive mood where appropriate
+- Formal and informal registers as needed
+
+SIMPLIFICATION FOCUS:
+- Clarify technical jargon (provide brief explanations)
+- Organize information logically
+- Make implicit connections explicit
+- Break down extremely dense information
+- Maintain sophistication while improving clarity
+
+EXAMPLES:
+Very Complex: "The epistemological ramifications of the aforementioned paradigmatic shift necessitate a fundamental reconsideration of our methodological approach vis-à-vis data interpretation."
+Fluent: "This major change in thinking requires us to fundamentally rethink how we interpret data."
+
+Complex legal: "The party of the first part hereby agrees to indemnify and hold harmless the party of the second part."
+Fluent: "The first party agrees to protect the second party from legal liability and compensate them for any losses."
+
