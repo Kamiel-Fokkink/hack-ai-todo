@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tasksList = document.getElementById('tasksList');
     
     let completedTasks = [];
+    let tasksPolling;
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -33,13 +34,39 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTasks();
     };
 
+    async function fetchTasks() {
+        try {
+            const response = await fetch('/tasks');
+            if (!response.ok) {
+                throw new Error('Failed to fetch tasks');
+            }
+            const data = await response.json();
+            completedTasks = Array.isArray(data.tasks) ? data.tasks : [];
+            renderTasks();
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        }
+    }
+
+    function startPolling() {
+        fetchTasks();
+        if (tasksPolling) clearInterval(tasksPolling);
+        tasksPolling = setInterval(fetchTasks, 5000);
+    }
+
     function renderTasks() {
         if (completedTasks.length === 0) {
             tasksList.innerHTML = '<p class="empty-state">No tasks completed yet.</p>';
             return;
         }
         
-        tasksList.innerHTML = completedTasks.map(t => `
+        const sortedTasks = [...completedTasks].sort((a, b) => {
+            const aTime = new Date(a.submitted_at || a.timestamp || 0).getTime();
+            const bTime = new Date(b.submitted_at || b.timestamp || 0).getTime();
+            return bTime - aTime;
+        });
+
+        tasksList.innerHTML = sortedTasks.map(t => `
             <div class="task-item">
                 <span class="task-checkbox">✓</span>
                 <div class="task-details">
@@ -49,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
     }
+
+    startPolling();
 
     // Update file input text when file is selected
     fileInput.addEventListener('change', (e) => {

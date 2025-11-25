@@ -25,6 +25,8 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
+task_store = []
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -162,77 +164,25 @@ async def simplify_content(request: SimplifyRequest):
 
 @app.post("/task")
 async def submit_task(request: TaskRequest):
-    # Basic validation (Pydantic already enforces non-empty, but we can add trimming)
     name = request.name.strip()
     task_text = request.task.strip()
     if not name or not task_text:
         raise HTTPException(status_code=400, detail="Fields 'name' and 'task' must be non-empty.")
 
-    try:
-        base_dir = os.path.dirname(os.path.dirname(__file__))
-        TASKS_DIR = os.path.join(base_dir, "data", "tasks")
-        OUTPUT_DIR = os.path.join(base_dir, "data", "output")
-        os.makedirs(TASKS_DIR, exist_ok=True)
+    task_entry = {
+        "id": datetime.utcnow().strftime("%Y%m%d%H%M%S%f"),
+        "submitted_at": datetime.utcnow().isoformat(),
+        "name": name,
+        "task": task_text,
+        "employer": request.employer,
+        "related_output_filename": request.related_output_filename
+    }
+    task_store.append(task_entry)
+    return {"status": "success", "task": task_entry}
 
-        # Try to associate with latest output metadata if not explicitly provided
-        related_output_filename = request.related_output_filename
-        related_metadata = {}
-        if related_output_filename:
-            # Use explicit association
-            output_path = os.path.join(OUTPUT_DIR, related_output_filename)
-            if os.path.isfile(output_path):
-                with open(output_path, "r") as f:
-                    out_json = json.load(f)
-                    related_metadata = out_json.get("metadata", {})
-            else:
-                # If file not found, keep the filename reference but no metadata
-                related_metadata = {"warning": f"Related output file '{related_output_filename}' not found."}
-        else:
-            # Find latest output and associate implicitly
-            output_files = [os.path.join(OUTPUT_DIR, f) for f in os.listdir(OUTPUT_DIR) if f.endswith(".json")]
-            if output_files:
-                latest_output = max(output_files, key=os.path.getctime)
-                related_output_filename = os.path.basename(latest_output)
-                with open(latest_output, "r") as f:
-                    out_json = json.load(f)
-                    related_metadata = out_json.get("metadata", {})
-            else:
-                related_metadata = {"warning": "No output files found to associate with this task."}
-
-        # If employer explicitly provided, override or augment
-        if request.employer:
-            related_metadata["employer"] = request.employer
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_name = "".join([c for c in name if c.isalnum() or c in (" ", "-", "_")]).strip().replace(" ", "_")
-        task_id = f"{timestamp}_{safe_name}"
-
-        task_record = {
-            "id": task_id,
-            "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "name": name,
-            "task": task_text,
-            "related_output_filename": related_output_filename,
-            "metadata": related_metadata,
-            "status": "queued"  # initial status; downstream workers can update
-        }
-
-        # Persist the task
-        task_path = os.path.join(TASKS_DIR, f"{task_id}.json")
-        with open(task_path, "w") as f:
-            json.dump(task_record, f, indent=2)
-
-        # Placeholder: enqueue to a worker/queue system if available (e.g., Celery, RQ, or a simple background task)
-        # enqueue_task(task_record)
-
-        return {
-            "status": "success",
-            "task_id": task_id,
-            "task_path": task_path,
-            "task": task_record
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@app.get("/tasks")
+async def list_tasks():
+    return {"tasks": task_store}
 
 # Mount static files
 app.mount("/", StaticFiles(directory="server/static", html=True), name="static")
