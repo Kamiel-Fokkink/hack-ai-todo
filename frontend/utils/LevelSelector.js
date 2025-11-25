@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   levelOptionSelected: {
     backgroundColor: '#E5F3FF',
-    borderColor: '#007AFF',
+    borderColor: '#478FEB',
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     borderColor: '#666',
   },
   dotFilledSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#478FEB',
+    borderColor: '#478FEB',
   },
 });

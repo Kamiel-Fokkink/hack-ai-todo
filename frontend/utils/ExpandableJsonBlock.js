@@ -193,24 +193,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   blockHeaderWithTasks: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FFF9E6',
   },
   blockTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#478FEB',
     flex: 1,
   },
   blockTitleWithTasks: {
-    color: '#2E7D32',
+    color: '#D4A917',
   },
   expandIcon: {
     fontSize: 14,
-    color: '#007AFF',
+    color: '#478FEB',
     marginLeft: 8,
   },
   expandIconWithTasks: {
-    color: '#2E7D32',
+    color: '#D4A917',
   },
   blockContent: {
     padding: 16,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
   bulletPoint: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#478FEB',
     marginRight: 8,
     lineHeight: 24,
   },
