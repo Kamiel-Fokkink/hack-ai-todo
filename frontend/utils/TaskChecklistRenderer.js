@@ -1,27 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { renderTextWithLargeEmojis } from './emojiRenderer';
 
 /**
  * Renders text with checkboxes for tasks
  * Each non-empty line becomes a checkable task
+ * Entire row is clickable (checkbox + text)
  */
-export default function TaskChecklistRenderer({ text, style }) {
-  // Split by newlines and filter empty lines
+export default function TaskChecklistRenderer({ text, style, checkedItems = {}, onToggle }) {
   const lines = text
     .split('\n')
     .map(line => line.trim())
     .filter(line => line.length > 0);
-
-  // Track checked state for each line
-  const [checkedItems, setCheckedItems] = useState({});
-
-  const toggleCheckbox = (index) => {
-    setCheckedItems(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
-  };
 
   return (
     <View style={styles.container}>
@@ -29,14 +19,17 @@ export default function TaskChecklistRenderer({ text, style }) {
         const isChecked = checkedItems[index] || false;
 
         return (
-          <View key={index} style={styles.taskItem}>
-            <TouchableOpacity
-              style={styles.checkbox}
-              onPress={() => toggleCheckbox(index)}
-              activeOpacity={0.7}
-            >
-              {isChecked && <Text style={styles.checkmark}>✓</Text>}
-            </TouchableOpacity>
+          <TouchableOpacity
+            key={index}
+            style={styles.taskItem}
+            onPress={() => onToggle && onToggle(index)}
+            activeOpacity={0.7}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: isChecked }}
+          >
+            <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+              {isChecked && <Text style={[styles.checkmark, styles.checkmarkChecked]}>✓</Text>}
+            </View>
 
             <View style={[styles.taskTextContainer, isChecked && styles.taskTextContainerChecked]}>
               {renderTextWithLargeEmojis(
@@ -44,7 +37,7 @@ export default function TaskChecklistRenderer({ text, style }) {
                 [style, isChecked && styles.taskTextChecked]
               )}
             </View>
-          </View>
+          </TouchableOpacity>
         );
       })}
     </View>
@@ -53,31 +46,26 @@ export default function TaskChecklistRenderer({ text, style }) {
 
 /**
  * Renders array items with checkboxes
+ * Entire row is clickable
  */
-export function TaskChecklistArray({ items, style }) {
-  const [checkedItems, setCheckedItems] = useState({});
-
-  const toggleCheckbox = (index) => {
-    setCheckedItems(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
-  };
-
+export function TaskChecklistArray({ items, style, checkedItems = {}, onToggle }) {
   return (
     <View style={styles.container}>
       {items.map((item, index) => {
         const isChecked = checkedItems[index] || false;
 
         return (
-          <View key={index} style={styles.taskItem}>
-            <TouchableOpacity
-              style={styles.checkbox}
-              onPress={() => toggleCheckbox(index)}
-              activeOpacity={0.7}
-            >
-              {isChecked && <Text style={styles.checkmark}>✓</Text>}
-            </TouchableOpacity>
+          <TouchableOpacity
+            key={index}
+            style={styles.taskItem}
+            onPress={() => onToggle && onToggle(index)}
+            activeOpacity={0.7}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: isChecked }}
+          >
+            <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+              {isChecked && <Text style={[styles.checkmark, styles.checkmarkChecked]}>✓</Text>}
+            </View>
 
             <View style={[styles.taskTextContainer, isChecked && styles.taskTextContainerChecked]}>
               {renderTextWithLargeEmojis(
@@ -85,7 +73,7 @@ export function TaskChecklistArray({ items, style }) {
                 [style, isChecked && styles.taskTextChecked]
               )}
             </View>
-          </View>
+          </TouchableOpacity>
         );
       })}
     </View>
@@ -94,17 +82,9 @@ export function TaskChecklistArray({ items, style }) {
 
 /**
  * Renders nested object values with checkboxes (keys remain as labels)
+ * Each value row clickable
  */
-export function TaskChecklistNested({ object, keyStyle, valueStyle }) {
-  const [checkedItems, setCheckedItems] = useState({});
-
-  const toggleCheckbox = (key) => {
-    setCheckedItems(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
+export function TaskChecklistNested({ object, keyStyle, valueStyle, checkedItems = {}, onToggle }) {
   return (
     <View style={styles.nestedContainer}>
       {Object.keys(object).map((key) => {
@@ -115,14 +95,16 @@ export function TaskChecklistNested({ object, keyStyle, valueStyle }) {
           <View key={key} style={styles.nestedItem}>
             <Text style={keyStyle}>{key}:</Text>
 
-            <View style={styles.taskItem}>
-              <TouchableOpacity
-                style={styles.checkbox}
-                onPress={() => toggleCheckbox(key)}
-                activeOpacity={0.7}
-              >
-                {isChecked && <Text style={styles.checkmark}>✓</Text>}
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.taskItem}
+              onPress={() => onToggle && onToggle(key)}
+              activeOpacity={0.7}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: isChecked }}
+            >
+              <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+                {isChecked && <Text style={[styles.checkmark, styles.checkmarkChecked]}>✓</Text>}
+              </View>
 
               <View style={[styles.taskTextContainer, isChecked && styles.taskTextContainerChecked]}>
                 {renderTextWithLargeEmojis(
@@ -130,7 +112,7 @@ export function TaskChecklistNested({ object, keyStyle, valueStyle }) {
                   [valueStyle, isChecked && styles.taskTextChecked]
                 )}
               </View>
-            </View>
+            </TouchableOpacity>
           </View>
         );
       })}
@@ -152,27 +134,34 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#F5DA5F',
+    borderColor: '#A9C8AA',
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
     marginTop: 2,
   },
+  checkboxChecked: {
+    borderColor: '#3A6F3A',
+    backgroundColor: '#DFF2DF',
+  },
   checkmark: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#D4A917',
+    color: '#B99724',
+  },
+  checkmarkChecked: {
+    color: '#3A6F3A',
   },
   taskTextContainer: {
     flex: 1,
   },
   taskTextContainerChecked: {
-    opacity: 0.5,
+    opacity: 0.55,
   },
   taskTextChecked: {
     textDecorationLine: 'line-through',
-    color: '#999',
+    color: '#667066',
   },
   nestedContainer: {
     marginTop: 8,

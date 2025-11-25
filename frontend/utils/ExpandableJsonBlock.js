@@ -1,93 +1,140 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, LayoutAnimation, Platform, UIManager } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
 import { renderTextWithLargeEmojis } from './emojiRenderer';
-import TaskChecklistRenderer, { TaskChecklistArray, TaskChecklistNested } from './TaskChecklistRenderer';
+import TaskChecklistRenderer, {
+  TaskChecklistArray,
+  TaskChecklistNested,
+} from './TaskChecklistRenderer';
 
-// Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-/**
- * Formats a key into a readable title
- * Converts snake_case or camelCase to Title Case
- */
 function formatTitle(key) {
   return key
     .replace(/_/g, ' ')
     .replace(/([A-Z])/g, ' $1')
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
     .trim();
 }
 
-/**
- * Renders nested content (arrays, strings, objects) without expansion
- * If hasTasks is true, renders with checkboxes
- */
-function renderNestedContent(value, hasTasks = false) {
+function getTotalTaskCount(value) {
+  if (Array.isArray(value)) return value.length;
+  if (typeof value === 'string') {
+    return value
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0).length;
+  }
+  if (value && typeof value === 'object') return Object.keys(value).length;
+  return 0;
+}
+
+function renderNestedContent(
+  value,
+  hasTasks = false,
+  blockKey,
+  checkedItems = {},
+  onToggleCheckbox
+) {
+  const blockCheckedItems = checkedItems[blockKey] || {};
+
+  const handleToggle = (itemKey) => {
+    if (onToggleCheckbox) onToggleCheckbox(blockKey, itemKey);
+  };
+
   if (Array.isArray(value)) {
     if (hasTasks) {
-      // Render array items with checkboxes
-      return <TaskChecklistArray items={value} style={styles.listItemText} />;
-    } else {
-      // Render normally with bullets
       return (
-        <View style={styles.listContainer}>
-          {value.map((item, index) => (
-            <View key={index} style={styles.listItem}>
-              <Text style={styles.bulletPoint}>•</Text>
-              {renderTextWithLargeEmojis(String(item), styles.listItemText)}
-            </View>
-          ))}
-        </View>
+        <TaskChecklistArray
+          items={value}
+          style={styles.listItemText}
+          checkedItems={blockCheckedItems}
+          onToggle={handleToggle}
+        />
       );
     }
+    return (
+      <View style={styles.listContainer}>
+        {value.map((item, index) => (
+          <View key={index} style={styles.listItem}>
+            <Text style={styles.bulletPoint}>•</Text>
+            {renderTextWithLargeEmojis(String(item), styles.listItemText)}
+          </View>
+        ))}
+      </View>
+    );
   } else if (typeof value === 'string') {
     if (hasTasks) {
-      // Render string with checkboxes (split by lines)
-      return <TaskChecklistRenderer text={value} style={styles.contentText} />;
-    } else {
-      // Render normally
-      return renderTextWithLargeEmojis(value, styles.contentText);
+      return (
+        <TaskChecklistRenderer
+          text={value}
+          style={styles.contentText}
+          checkedItems={blockCheckedItems}
+          onToggle={handleToggle}
+        />
+      );
     }
+    return renderTextWithLargeEmojis(value, styles.contentText);
   } else if (typeof value === 'object' && value !== null) {
     if (hasTasks) {
-      // Render nested object values with checkboxes (keys stay as labels)
       return (
         <TaskChecklistNested
           object={value}
           keyStyle={styles.nestedKey}
           valueStyle={styles.nestedValue}
+          checkedItems={blockCheckedItems}
+          onToggle={handleToggle}
         />
       );
-    } else {
-      // Render nested objects as key-value pairs (no expansion)
-      return (
-        <View style={styles.nestedObject}>
-          {Object.keys(value).map((nestedKey) => (
-            <View key={nestedKey} style={styles.nestedItem}>
-              <Text style={styles.nestedKey}>{formatTitle(nestedKey)}:</Text>
-              {renderTextWithLargeEmojis(String(value[nestedKey]), styles.nestedValue)}
-            </View>
-          ))}
-        </View>
-      );
     }
+    return (
+      <View style={styles.nestedObject}>
+        {Object.keys(value).map((nestedKey) => (
+          <View key={nestedKey} style={styles.nestedItem}>
+            <Text style={styles.nestedKey}>{formatTitle(nestedKey)}:</Text>
+            {renderTextWithLargeEmojis(
+              String(value[nestedKey]),
+              styles.nestedValue
+            )}
+          </View>
+        ))}
+      </View>
+    );
   } else {
     if (hasTasks) {
-      return <TaskChecklistRenderer text={String(value)} style={styles.contentText} />;
-    } else {
-      return renderTextWithLargeEmojis(String(value), styles.contentText);
+      return (
+        <TaskChecklistRenderer
+          text={String(value)}
+          style={styles.contentText}
+          checkedItems={blockCheckedItems}
+          onToggle={handleToggle}
+        />
+      );
     }
+    return renderTextWithLargeEmojis(String(value), styles.contentText);
   }
 }
 
-/**
- * Single Expandable Block Component
- */
-function ExpandableBlock({ title, children, isExpanded, onToggle, hasTasks }) {
+function ExpandableBlock({
+  title,
+  children,
+  isExpanded,
+  onToggle,
+  hasTasks,
+  completed,
+}) {
   const rotateAnim = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
 
   React.useEffect(() => {
@@ -104,71 +151,123 @@ function ExpandableBlock({ title, children, isExpanded, onToggle, hasTasks }) {
   });
 
   const handleToggle = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    LayoutAnimation.configureNext({
+      duration: 200,
+      create: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+      update: { type: LayoutAnimation.Types.easeInEaseOut },
+      delete: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
+      },
+    });
     onToggle();
   };
+
+  const headerStyles = [
+    styles.blockHeader,
+    hasTasks && styles.blockHeaderWithTasks,
+    completed && styles.blockHeaderCompleted,
+  ];
+  const titleStyles = [
+    styles.blockTitle,
+    hasTasks && styles.blockTitleWithTasks,
+    completed && styles.blockTitleCompleted,
+  ];
+  const iconStyles = [
+    styles.expandIcon,
+    hasTasks && styles.expandIconWithTasks,
+    completed && styles.expandIconCompleted,
+  ];
 
   return (
     <View style={styles.blockContainer}>
       <TouchableOpacity
-        style={[styles.blockHeader, hasTasks && styles.blockHeaderWithTasks]}
+        style={headerStyles}
         onPress={handleToggle}
         activeOpacity={0.7}
       >
-        <Text style={[styles.blockTitle, hasTasks && styles.blockTitleWithTasks]}>{title}</Text>
+        <Text style={titleStyles}>{title}</Text>
         <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-          <Text style={[styles.expandIcon, hasTasks && styles.expandIconWithTasks]}>▼</Text>
+          <Text style={iconStyles}>▼</Text>
         </Animated.View>
       </TouchableOpacity>
 
-      {isExpanded && (
-        <View style={styles.blockContent}>
-          {children}
-        </View>
-      )}
+      {isExpanded && <View style={styles.blockContent}>{children}</View>}
     </View>
   );
 }
 
-/**
- * Main Component: Renders all JSON keys as expandable blocks
- */
-export default function ExpandableJsonBlocks({ jsonData, taskClassification = {} }) {
-  const [expandedBlocks, setExpandedBlocks] = useState({});
+export default function ExpandableJsonBlocks({
+  jsonData,
+  taskClassification = {},
+}) {
+  const validKeys =
+    jsonData && typeof jsonData === 'object'
+      ? Object.keys(jsonData).filter(
+          (key) => key.toLowerCase() !== 'metadata'
+        )
+      : [];
 
-  if (!jsonData || typeof jsonData !== 'object') {
-    return null;
-  }
+  const [expandedKey, setExpandedKey] = useState(
+    validKeys.length > 0 ? validKeys[0] : null
+  );
+
+  const [checkedItems, setCheckedItems] = useState({});
+
+  if (!jsonData || typeof jsonData !== 'object') return null;
 
   const toggleBlock = (key) => {
-    setExpandedBlocks(prev => ({
+    setExpandedKey((prevKey) => (prevKey === key ? null : key));
+  };
+
+  const toggleCheckbox = (blockKey, itemKey) => {
+    setCheckedItems((prev) => ({
       ...prev,
-      [key]: !prev[key]
+      [blockKey]: {
+        ...(prev[blockKey] || {}),
+        [itemKey]: !(prev[blockKey]?.[itemKey] || false),
+      },
     }));
   };
 
   return (
     <View style={styles.container}>
-      {Object.keys(jsonData)
-        .filter(key => key.toLowerCase() !== 'metadata') // Hide metadata key
-        .map((key) => {
-          const value = jsonData[key];
-          const title = formatTitle(key);
-          const isExpanded = expandedBlocks[key] || false;
-          const hasTasks = taskClassification[key] || false;
+      {validKeys.map((key) => {
+        const value = jsonData[key];
+        const title = formatTitle(key);
+        const isExpanded = expandedKey === key;
+        const hasTasks = taskClassification[key] || false;
 
-          return (
-            <ExpandableBlock
-              key={key}
-              title={title}
-              isExpanded={isExpanded}
-              onToggle={() => toggleBlock(key)}
-              hasTasks={hasTasks}
-            >
-              {renderNestedContent(value, hasTasks)}
-            </ExpandableBlock>
-          );
-        })}
+        let completed = false;
+        if (hasTasks) {
+          const totalTasks = getTotalTaskCount(value);
+            const checkedCount = Object.values(checkedItems[key] || {}).filter(Boolean).length;
+          completed =
+            totalTasks > 0 && checkedCount === totalTasks && checkedCount !== 0;
+        }
+
+        return (
+          <ExpandableBlock
+            key={key}
+            title={title}
+            isExpanded={isExpanded}
+            onToggle={() => toggleBlock(key)}
+            hasTasks={hasTasks}
+            completed={completed}
+          >
+            {renderNestedContent(
+              value,
+              hasTasks,
+              key,
+              checkedItems,
+              toggleCheckbox
+            )}
+          </ExpandableBlock>
+        );
+      })}
     </View>
   );
 }
@@ -193,7 +292,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   blockHeaderWithTasks: {
-    backgroundColor: '#FFF9E6',
+    backgroundColor: '#FBF4DD', // softer yellow
+  },
+  blockHeaderCompleted: {
+    backgroundColor: '#E9F7EC', // very light green
+    borderColor: '#B7D5BC',
   },
   blockTitle: {
     fontSize: 18,
@@ -202,7 +305,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   blockTitleWithTasks: {
-    color: '#D4A917',
+    color: '#B99724',
+  },
+  blockTitleCompleted: {
+    color: '#3A6F3A',
   },
   expandIcon: {
     fontSize: 14,
@@ -210,7 +316,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   expandIconWithTasks: {
-    color: '#D4A917',
+    color: '#B99724',
+  },
+  expandIconCompleted: {
+    color: '#3A6F3A',
   },
   blockContent: {
     padding: 16,
