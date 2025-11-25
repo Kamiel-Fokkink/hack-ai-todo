@@ -14,6 +14,7 @@ import TaskChecklistRenderer, {
   TaskChecklistArray,
   TaskChecklistNested,
 } from './TaskChecklistRenderer';
+import TaskService from '../services/TaskService';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -50,8 +51,8 @@ function renderNestedContent(
 ) {
   const blockCheckedItems = checkedItems[blockKey] || {};
 
-  const handleToggle = (itemKey) => {
-    if (onToggleCheckbox) onToggleCheckbox(blockKey, itemKey);
+  const handleToggle = (itemKey, taskValue) => {
+    if (onToggleCheckbox) onToggleCheckbox(blockKey, itemKey, taskValue);
   };
 
   if (Array.isArray(value)) {
@@ -223,14 +224,22 @@ export default function ExpandableJsonBlocks({
     setExpandedKey((prevKey) => (prevKey === key ? null : key));
   };
 
-  const toggleCheckbox = (blockKey, itemKey) => {
-    setCheckedItems((prev) => ({
-      ...prev,
-      [blockKey]: {
-        ...(prev[blockKey] || {}),
-        [itemKey]: !(prev[blockKey]?.[itemKey] || false),
-      },
-    }));
+  const toggleCheckbox = (blockKey, itemKey, taskText) => {
+    setCheckedItems((prev) => {
+      const blockState = prev[blockKey] || {};
+      const wasChecked = blockState[itemKey] || false;
+      const updatedBlock = {
+        ...blockState,
+        [itemKey]: !wasChecked,
+      };
+      if (!wasChecked && taskText) {
+        TaskService.submitCompletedTask(taskText);
+      }
+      return {
+        ...prev,
+        [blockKey]: updatedBlock,
+      };
+    });
   };
 
   return (

@@ -22,7 +22,7 @@ export default function TaskChecklistRenderer({ text, style, checkedItems = {}, 
           <TouchableOpacity
             key={index}
             style={styles.taskItem}
-            onPress={() => onToggle && onToggle(index)}
+            onPress={() => onToggle && onToggle(index, line)}
             activeOpacity={0.7}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: isChecked }}
@@ -58,7 +58,7 @@ export function TaskChecklistArray({ items, style, checkedItems = {}, onToggle }
           <TouchableOpacity
             key={index}
             style={styles.taskItem}
-            onPress={() => onToggle && onToggle(index)}
+            onPress={() => onToggle && onToggle(index, String(item))}
             activeOpacity={0.7}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: isChecked }}
@@ -97,7 +97,7 @@ export function TaskChecklistNested({ object, keyStyle, valueStyle, checkedItems
 
             <TouchableOpacity
               style={styles.taskItem}
-              onPress={() => onToggle && onToggle(key)}
+              onPress={() => onToggle && onToggle(key, String(value))}
               activeOpacity={0.7}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: isChecked }}
