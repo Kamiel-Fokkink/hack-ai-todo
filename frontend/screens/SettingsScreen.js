@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import UserDataService from '../services/UserDataService';
 import LevelSelector from '../utils/LevelSelector';
 import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
-import { Plus } from 'lucide-react-native';
+import { Plus, Pencil, Trash2 } from 'lucide-react-native';
 
 export default function SettingsScreen() {
   const [name, setName] = useState('');
@@ -146,13 +146,12 @@ export default function SettingsScreen() {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Settings</Text>
       </View>
 
       {/* Languages Section */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Languages</Text>
+          <Text style={styles.sectionTitle}>🇬🇧 🇪🇸 🇳🇱 🇵🇱 🇩🇪 🇫🇷</Text>
           <TouchableOpacity onPress={openAddLanguageModal} style={styles.addButtonIcon}>
             <Plus color="#478FEB" size={24} />
           </TouchableOpacity>
@@ -178,13 +177,13 @@ export default function SettingsScreen() {
                   style={styles.editButton}
                   onPress={() => openEditLanguageModal(index)}
                 >
-                  <Text style={styles.editButtonText}>Edit</Text>
+                  <Pencil color="#fff" size={16} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={() => handleDeleteLanguage(index)}
                 >
-                  <Text style={styles.deleteButtonText}>Delete</Text>
+                  <Trash2 color="#fff" size={16} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -263,26 +262,19 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     paddingTop: 20,
+    marginBottom: 20,
   },
   logo: {
-    width: 80,
-    height: 80,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    width: 120,
+    height: 120,
   },
   section: {
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 28,
     marginBottom: 10,
     paddingHorizontal: 20,
-    color: '#555',
     marginBottom: 0,
   },
   sectionHeader: {
@@ -366,26 +358,18 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   editButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    padding: 8,
     backgroundColor: '#478FEB',
     borderRadius: 6,
-  },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   deleteButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    padding: 8,
     backgroundColor: '#FF3B30',
     borderRadius: 6,
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   addButton: {
     marginTop: 16,

@@ -14,12 +14,15 @@ export default function App() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerTitle: '',
+          tabBarShowLabel: false,
+          tabBarActiveTintColor: '#478FEB',
+          tabBarInactiveTintColor: '#999',
           tabBarIcon: () => {
             let iconName;
             if (route.name === 'Home') iconName = '🏠';
             else if (route.name === 'Conversation') iconName = '🗣️';
             else if (route.name === 'Settings') iconName = '⚙️';
-            return <Text style={{ fontSize: 25 }}>{iconName}</Text>;
+            return <Text style={{ fontSize: 28 }}>{iconName}</Text>;
           },
         })}
       >
