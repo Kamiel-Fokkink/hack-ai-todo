@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#F5DA5F',
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   checkmark: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#D4A917',
   },
   taskTextContainer: {
     flex: 1,

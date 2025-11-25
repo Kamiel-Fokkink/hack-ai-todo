@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView, Modal, Image } from 'react-native';
 import UserDataService from '../services/UserDataService';
 import LevelSelector from '../utils/LevelSelector';
 import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
@@ -133,21 +133,28 @@ export default function SettingsScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#478FEB" />
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
+      <View style={styles.headerContainer}>
+        <Image
+          source={require('../assets/logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.title}>Settings</Text>
+      </View>
 
       {/* Languages Section */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Languages</Text>
           <TouchableOpacity onPress={openAddLanguageModal} style={styles.addButtonIcon}>
-            <Plus color="#007AFF" size={24} />
+            <Plus color="#478FEB" size={24} />
           </TouchableOpacity>
         </View>
         <View style={styles.formContainer}>
@@ -253,12 +260,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  headerContainer: {
+    alignItems: 'center',
+    paddingTop: 20,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    marginBottom: 10,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
-    marginTop: 20,
-    paddingHorizontal: 20,
   },
   section: {
     marginBottom: 20,
@@ -354,7 +368,7 @@ const styles = StyleSheet.create({
   editButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#478FEB',
     borderRadius: 6,
   },
   editButtonText: {
@@ -379,17 +393,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#478FEB',
     borderStyle: 'dashed',
     alignItems: 'center',
   },
   addButtonText: {
-    color: '#007AFF',
+    color: '#478FEB',
     fontSize: 16,
     fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#478FEB',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -456,7 +470,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   confirmButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#478FEB',
   },
   confirmButtonText: {
     color: '#fff',

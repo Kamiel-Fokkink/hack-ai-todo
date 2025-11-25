@@ -74,13 +74,19 @@ export default function HomeScreen() {
   if (loading && !userData.languages) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#478FEB" />
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Image
+        source={require('../assets/logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+      <Text style={styles.greeting}>{getGreeting()}</Text>
       
       {userData.languages && userData.languages.length > 0 ? (
         <>
@@ -161,6 +167,12 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
+  logo: {
+    width: 120,
+    height: 120,
+    marginTop: 20,
+    marginBottom: 10,
+  },
   greeting: {
     fontSize: 32,
     fontWeight: 'bold',
@@ -176,7 +188,7 @@ const styles = StyleSheet.create({
   },
   getHelpButton: {
     flex: 1,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#478FEB',
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderTopLeftRadius: 12,
@@ -190,7 +202,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   languageSelector: {
-    backgroundColor: '#0066CC',
+    backgroundColor: '#3D7BC7',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderTopRightRadius: 12,
@@ -269,8 +281,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   languageOptionSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#478FEB',
+    borderColor: '#478FEB',
   },
   languageOptionContent: {
     flexDirection: 'row',
