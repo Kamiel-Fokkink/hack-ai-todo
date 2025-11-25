@@ -5,7 +5,6 @@ import UserDataService from '../services/UserDataService';
 import HelpService from '../services/HelpService';
 import ExpandableJsonBlocks from '../utils/ExpandableJsonBlock';
 import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
-import ExpandableJsonBlocks from '../utils/ExpandableJsonBlock';
 
 export default function HomeScreen() {
   const [userData, setUserData] = useState({ name: '', surname: '', languages: [] });
@@ -118,7 +117,6 @@ export default function HomeScreen() {
           {/* Display API Response Inline */}
           {apiResponse && (
             <View style={styles.responseContainer}>
-              <ExpandableJsonBlocks jsonData={apiResponse} />
               <ExpandableJsonBlocks
                 jsonData={apiResponse.content || apiResponse}
                 taskClassification={apiResponse.task_classification || {}}
@@ -349,27 +347,5 @@ const styles = StyleSheet.create({
   responseContainer: {
     marginTop: 20,
     width: '100%',
-  },
-  // New styles for voice recording UI
-  recordingContainer: {
-    marginTop: 30,
-    alignItems: 'center',
-  },
-  aiEmojiContainer: {
-    marginBottom: 20,
-  },
-  aiEmoji: {
-    fontSize: 64,
-  },
-  recordButton: {
-    backgroundColor: '#ff3b30',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-  },
-  recordButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
   },
 });
