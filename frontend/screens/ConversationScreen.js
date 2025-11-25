@@ -1,20 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, Animated, Easing, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, Alert, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import Markdown from 'react-native-markdown-display';
 import UserDataService from '../services/UserDataService';
 import HelpService from '../services/HelpService';
-import { jsonToMarkdown } from '../utils/jsonToMarkdown';
+import ExpandableJsonBlocks from '../utils/ExpandableJsonBlock';
 import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
 
-export default function ConversationScreen() {
+export default function HomeScreen() {
   const [userData, setUserData] = useState({ name: '', surname: '', languages: [] });
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState(null);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [apiResponse, setApiResponse] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   // Load user data when screen comes into focus
   useFocusEffect(
@@ -75,44 +72,6 @@ export default function ConversationScreen() {
     setShowLanguageModal(false);
   };
 
-
-  // Handle voice recording press
-  const handleRecordPress = () => {
-    if (isRecording) {
-      // Stop recording
-      setIsRecording(false);
-      // Stop animation by resetting scale
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-      console.log('User finished speaking (simulated)');
-    } else {
-      // Start recording
-      setIsRecording(true);
-      // Start pulsing animation
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(scaleAnim, {
-            toValue: 1.2,
-            duration: 500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnim, {
-            toValue: 1,
-            duration: 500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-      console.log('User started speaking (simulated)');
-    }
-  };
-
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -132,7 +91,7 @@ export default function ConversationScreen() {
               style={styles.getHelpButton}
               onPress={handleGetHelp}
             >
-              <Text style={styles.getHelpButtonText}>Start</Text>
+              <Text style={styles.getHelpButtonText}>Get Help</Text>
             </TouchableOpacity>
             
             <TouchableOpacity
@@ -158,24 +117,9 @@ export default function ConversationScreen() {
           {/* Display API Response Inline */}
           {apiResponse && (
             <View style={styles.responseContainer}>
-              <Markdown style={markdownStyles}>
-                {jsonToMarkdown(apiResponse)}
-              </Markdown>
+              <ExpandableJsonBlocks jsonData={apiResponse} />
             </View>
           )}
-
-          {/* Voice Recording Section */}
-          <View style={styles.recordingContainer}>
-            <Animated.View style={[styles.aiEmojiContainer, { transform: [{ scale: scaleAnim }] }] }>
-              <Text style={styles.aiEmoji}>🤖</Text>
-            </Animated.View>
-            <TouchableOpacity
-              style={styles.recordButton}
-              onPress={handleRecordPress}
-            >
-              <Text style={styles.recordButtonText}>{isRecording ? 'Stop' : 'Record'}</Text>
-            </TouchableOpacity>
-          </View>
         </>
       ) : (
         <Text style={styles.noLanguagesText}>
@@ -184,8 +128,12 @@ export default function ConversationScreen() {
       )}
 
       {/* Language Selection Modal */}
-      {/* Modal remains unchanged */}
-      {showLanguageModal && (
+      <Modal
+        visible={showLanguageModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Language</Text>
@@ -224,7 +172,7 @@ export default function ConversationScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      )}
+      </Modal>
     </ScrollView>
   );
 }
@@ -394,64 +342,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   responseContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
     marginTop: 20,
     width: '100%',
-    // maxWidth: 400,
-  },
-  // New styles for voice recording UI
-  recordingContainer: {
-    marginTop: 30,
-    alignItems: 'center',
-  },
-  aiEmojiContainer: {
-    marginBottom: 20,
-  },
-  aiEmoji: {
-    fontSize: 64,
-  },
-  recordButton: {
-    backgroundColor: '#ff3b30',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-  },
-  recordButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
   },
 });
-
-// Markdown-specific styles
-const markdownStyles = {
-  heading2: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  paragraph: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 12,
-    lineHeight: 24,
-  },
-  bullet_list: {
-    marginBottom: 12,
-  },
-  list_item: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 6,
-    lineHeight: 24,
-  },
-  body: {
-    fontSize: 16,
-    color: '#333',
-  },
-};
-

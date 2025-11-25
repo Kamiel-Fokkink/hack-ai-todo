@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from './screens/HomeScreen';
@@ -11,7 +11,18 @@ const Tab = createBottomTabNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerTitle: '',
+          tabBarIcon: () => {
+            let iconName;
+            if (route.name === 'Home') iconName = '🏠';
+            else if (route.name === 'Conversation') iconName = '🗣️';
+            else if (route.name === 'Settings') iconName = '⚙️';
+            return <Text style={{ fontSize: 25 }}>{iconName}</Text>;
+          },
+        })}
+      >
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Conversation" component={ConversationScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />

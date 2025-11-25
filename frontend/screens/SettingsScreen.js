@@ -3,13 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import UserDataService from '../services/UserDataService';
 import LevelSelector from '../utils/LevelSelector';
 import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
+import { Plus } from 'lucide-react-native';
 
 export default function SettingsScreen() {
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [languages, setLanguages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   
   // Language modal state
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -36,22 +36,16 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      const success = await UserDataService.saveUserData({ name, surname, languages });
-      
-      if (success) {
-        Alert.alert('Success', 'Settings saved successfully!');
-      } else {
-        Alert.alert('Error', 'Failed to save settings');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'An error occurred while saving');
-    } finally {
-      setSaving(false);
-    }
-  };
+  // Auto-save changes
+  useEffect(() => {
+    if (loading) return;
+
+    const saveTimeout = setTimeout(() => {
+      UserDataService.saveUserData({ name, surname, languages });
+    }, 1000);
+
+    return () => clearTimeout(saveTimeout);
+  }, [name, surname, loading]);
 
   const openAddLanguageModal = () => {
     setEditingIndex(null);
@@ -147,34 +141,15 @@ export default function SettingsScreen() {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Settings</Text>
-      
-      {/* Personal Info Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Personal Information</Text>
-        <View style={styles.formContainer}>
-          <Text style={styles.label}>Name</Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Enter your name"
-            placeholderTextColor="#999"
-          />
-          
-          <Text style={styles.label}>Surname</Text>
-          <TextInput
-            style={styles.input}
-            value={surname}
-            onChangeText={setSurname}
-            placeholder="Enter your surname"
-            placeholderTextColor="#999"
-          />
-        </View>
-      </View>
 
       {/* Languages Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Languages</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Languages</Text>
+          <TouchableOpacity onPress={openAddLanguageModal} style={styles.addButtonIcon}>
+            <Plus color="#007AFF" size={24} />
+          </TouchableOpacity>
+        </View>
         <View style={styles.formContainer}>
           {languages.map((lang, index) => (
             <View key={index} style={styles.languageItem}>
@@ -208,27 +183,11 @@ export default function SettingsScreen() {
             </View>
           ))}
           
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={openAddLanguageModal}
-          >
-            <Text style={styles.addButtonText}>+ Add Language</Text>
-          </TouchableOpacity>
+
         </View>
       </View>
 
-      {/* Save Button */}
-      <TouchableOpacity 
-        style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-        onPress={handleSave}
-        disabled={saving}
-      >
-        {saving ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.saveButtonText}>Save All Settings</Text>
-        )}
-      </TouchableOpacity>
+
 
       {/* Language Modal */}
       <Modal
@@ -310,6 +269,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 20,
     color: '#555',
+    marginBottom: 0,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingRight: 20,
+  },
+  addButtonIcon: {
+    padding: 4,
   },
   formContainer: {
     backgroundColor: '#fff',
