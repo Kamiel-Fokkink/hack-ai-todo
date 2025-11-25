@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import UserDataService from '../services/UserDataService';
 import HelpService from '../services/HelpService';
 import ExpandableJsonBlocks from '../utils/ExpandableJsonBlock';
+import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
 
 export default function HomeScreen() {
   const [userData, setUserData] = useState({ name: '', surname: '', languages: [] });
@@ -97,12 +98,18 @@ export default function HomeScreen() {
               style={styles.languageSelector}
               onPress={() => setShowLanguageModal(true)}
             >
-              <View>
-                <Text style={styles.languageSelectorLabel}>Language</Text>
-                <Text style={styles.languageSelectorText}>
-                  {selectedLanguage ? `${selectedLanguage.language} (${selectedLanguage.level})` : 'Select'}
-                </Text>
-              </View>
+              {selectedLanguage ? (
+                <View style={styles.languageSelectorContent}>
+                  <Text style={styles.flagEmoji}>{getLanguageFlag(selectedLanguage.language)}</Text>
+                  {renderLevelDots(selectedLanguage.level, {
+                    container: styles.dotsContainerInline,
+                    dot: styles.dotInline,
+                    dotFilled: styles.dotFilledInline,
+                  })}
+                </View>
+              ) : (
+                <Text style={styles.languageSelectorText}>Select</Text>
+              )}
               <Text style={styles.dropdownIcon}>▼</Text>
             </TouchableOpacity>
           </View>
@@ -140,18 +147,20 @@ export default function HomeScreen() {
                 ]}
                 onPress={() => handleSelectLanguage(lang)}
               >
-                <Text style={[
-                  styles.languageOptionText,
-                  selectedLanguage?.language === lang.language && styles.languageOptionTextSelected
-                ]}>
-                  {lang.language}
-                </Text>
-                <Text style={[
-                  styles.languageOptionLevel,
-                  selectedLanguage?.language === lang.language && styles.languageOptionLevelSelected
-                ]}>
-                  {lang.level}
-                </Text>
+                <View style={styles.languageOptionContent}>
+                  <Text style={styles.languageOptionFlag}>{getLanguageFlag(lang.language)}</Text>
+                  <Text style={[
+                    styles.languageOptionText,
+                    selectedLanguage?.language === lang.language && styles.languageOptionTextSelected
+                  ]}>
+                    {lang.language}
+                  </Text>
+                </View>
+                {renderLevelDots(lang.level, {
+                  container: styles.dotsContainerModal,
+                  dot: styles.dotModal,
+                  dotFilled: selectedLanguage?.language === lang.language ? styles.dotFilledModalSelected : styles.dotFilledModal,
+                })}
               </TouchableOpacity>
             ))}
             
@@ -214,20 +223,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    minWidth: 140,
+    minWidth: 100,
     borderLeftWidth: 2,
     borderLeftColor: 'rgba(255, 255, 255, 0.3)',
   },
-  languageSelectorLabel: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: 11,
-    fontWeight: '600',
-    marginBottom: 2,
+  languageSelectorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  flagEmoji: {
+    fontSize: 24,
   },
   languageSelectorText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  dotsContainerInline: {
+    gap: 3,
+  },
+  dotInline: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  dotFilledInline: {
+    backgroundColor: '#fff',
+    borderColor: '#fff',
   },
   dropdownIcon: {
     color: '#fff',
@@ -274,6 +297,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
     borderColor: '#007AFF',
   },
+  languageOptionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  languageOptionFlag: {
+    fontSize: 24,
+  },
   languageOptionText: {
     fontSize: 16,
     fontWeight: '600',
@@ -282,13 +313,21 @@ const styles = StyleSheet.create({
   languageOptionTextSelected: {
     color: '#fff',
   },
-  languageOptionLevel: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
+  dotsContainerModal: {
+    gap: 4,
   },
-  languageOptionLevelSelected: {
-    color: 'rgba(255, 255, 255, 0.9)',
+  dotModal: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  dotFilledModal: {
+    backgroundColor: '#666',
+    borderColor: '#666',
+  },
+  dotFilledModalSelected: {
+    backgroundColor: '#fff',
+    borderColor: '#fff',
   },
   modalCloseButton: {
     marginTop: 12,

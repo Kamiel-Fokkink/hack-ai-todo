@@ -4,7 +4,7 @@ def test_simplify():
     url = "http://20.224.45.128:80/simplify"
     data = {
         "language": "nl",
-        "level": "a2",
+        "level": "Basic",
     }
     
     try:

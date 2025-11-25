@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView, Modal } from 'react-native';
 import UserDataService from '../services/UserDataService';
-
-const LANGUAGE_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+import LevelSelector from '../utils/LevelSelector';
+import { getLanguageFlag, renderLevelDots } from '../utils/languageUtils';
 
 export default function SettingsScreen() {
   const [name, setName] = useState('');
@@ -15,7 +15,7 @@ export default function SettingsScreen() {
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [modalLanguage, setModalLanguage] = useState('');
-  const [modalLevel, setModalLevel] = useState('A1');
+  const [modalLevel, setModalLevel] = useState('Basic');
 
   // Load user data on component mount
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function SettingsScreen() {
   const openAddLanguageModal = () => {
     setEditingIndex(null);
     setModalLanguage('');
-    setModalLevel('A1');
+    setModalLevel('Basic');
     setShowLanguageModal(true);
   };
 
@@ -179,8 +179,17 @@ export default function SettingsScreen() {
           {languages.map((lang, index) => (
             <View key={index} style={styles.languageItem}>
               <View style={styles.languageInfo}>
-                <Text style={styles.languageName}>{lang.language}</Text>
-                <Text style={styles.languageLevel}>{lang.level}</Text>
+                <View style={styles.languageNameContainer}>
+                  <Text style={styles.languageFlag}>{getLanguageFlag(lang.language)}</Text>
+                  <Text style={styles.languageName}>{lang.language}</Text>
+                </View>
+                <View style={styles.languageLevelContainer}>
+                  {renderLevelDots(lang.level, {
+                    container: styles.dotsContainer,
+                    dot: styles.dot,
+                    dotFilled: styles.dotFilled,
+                  })}
+                </View>
               </View>
               <View style={styles.languageActions}>
                 <TouchableOpacity
@@ -233,36 +242,29 @@ export default function SettingsScreen() {
             <Text style={styles.modalTitle}>
               {editingIndex !== null ? 'Edit Language' : 'Add Language'}
             </Text>
-            
-            <Text style={styles.label}>Language</Text>
+
+            <View style={styles.flagsRow}>
+              <Text style={styles.flagIcon}>🇬🇧</Text>
+              <Text style={styles.flagIcon}>🇪🇸</Text>
+              <Text style={styles.flagIcon}>🇳🇱</Text>
+              <Text style={styles.flagIcon}>🇵🇱</Text>
+              <Text style={styles.flagIcon}>🇩🇪</Text>
+              <Text style={styles.flagIcon}>🇫🇷</Text>
+            </View>
             <TextInput
               style={styles.input}
               value={modalLanguage}
               onChangeText={setModalLanguage}
-              placeholder="e.g., English, Spanish, French"
+              placeholder="e.g., English, Spanish, Dutch"
               placeholderTextColor="#999"
             />
-            
-            <Text style={styles.label}>Level</Text>
-            <View style={styles.levelSelector}>
-              {LANGUAGE_LEVELS.map(level => (
-                <TouchableOpacity
-                  key={level}
-                  style={[
-                    styles.levelButton,
-                    modalLevel === level && styles.levelButtonSelected
-                  ]}
-                  onPress={() => setModalLevel(level)}
-                >
-                  <Text style={[
-                    styles.levelButtonText,
-                    modalLevel === level && styles.levelButtonTextSelected
-                  ]}>
-                    {level}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+
+            <LevelSelector
+              selectedLevel={modalLevel}
+              onLevelChange={setModalLevel}
+              style={styles.levelSelectorContainer}
+              showIcon={true}
+            />
             
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -345,16 +347,35 @@ const styles = StyleSheet.create({
   },
   languageInfo: {
     flex: 1,
+    gap: 8,
+  },
+  languageNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  languageFlag: {
+    fontSize: 20,
   },
   languageName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },
-  languageLevel: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
+  languageLevelContainer: {
+    marginLeft: 28,
+  },
+  dotsContainer: {
+    gap: 4,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  dotFilled: {
+    backgroundColor: '#666',
+    borderColor: '#666',
   },
   languageActions: {
     flexDirection: 'row',
@@ -432,33 +453,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  levelSelector: {
+  flagsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 12,
+    paddingVertical: 8,
+  },
+  flagIcon: {
+    fontSize: 28,
+  },
+  levelSelectorContainer: {
     marginBottom: 20,
-  },
-  levelButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
-    minWidth: 60,
-    alignItems: 'center',
-  },
-  levelButtonSelected: {
-    borderColor: '#007AFF',
-    backgroundColor: '#007AFF',
-  },
-  levelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  levelButtonTextSelected: {
-    color: '#fff',
   },
   modalButtons: {
     flexDirection: 'row',
