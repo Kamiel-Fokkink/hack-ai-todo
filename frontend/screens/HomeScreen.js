@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, Alert, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import Markdown from 'react-native-markdown-display';
 import UserDataService from '../services/UserDataService';
 import HelpService from '../services/HelpService';
-import { jsonToMarkdown } from '../utils/jsonToMarkdown';
+import ExpandableJsonBlocks from '../utils/ExpandableJsonBlock';
 
 export default function HomeScreen() {
   const [userData, setUserData] = useState({ name: '', surname: '', languages: [] });
@@ -111,9 +110,7 @@ export default function HomeScreen() {
           {/* Display API Response Inline */}
           {apiResponse && (
             <View style={styles.responseContainer}>
-              <Markdown style={markdownStyles}>
-                {jsonToMarkdown(apiResponse)}
-              </Markdown>
+              <ExpandableJsonBlocks jsonData={apiResponse} />
             </View>
           )}
         </>
@@ -306,42 +303,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   responseContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
     marginTop: 20,
     width: '100%',
-    // maxWidth: 400,
   },
 });
-
-// Markdown-specific styles
-const markdownStyles = {
-  heading2: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  paragraph: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 12,
-    lineHeight: 24,
-  },
-  bullet_list: {
-    marginBottom: 12,
-  },
-  list_item: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 6,
-    lineHeight: 24,
-  },
-  body: {
-    fontSize: 16,
-    color: '#333',
-  },
-};
-
