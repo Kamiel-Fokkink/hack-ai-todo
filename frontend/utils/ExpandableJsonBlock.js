@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { renderTextWithLargeEmojis } from './emojiRenderer';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -30,13 +31,13 @@ function renderNestedContent(value) {
         {value.map((item, index) => (
           <View key={index} style={styles.listItem}>
             <Text style={styles.bulletPoint}>•</Text>
-            <Text style={styles.listItemText}>{String(item)}</Text>
+            {renderTextWithLargeEmojis(String(item), styles.listItemText)}
           </View>
         ))}
       </View>
     );
   } else if (typeof value === 'string') {
-    return <Text style={styles.contentText}>{value}</Text>;
+    return renderTextWithLargeEmojis(value, styles.contentText);
   } else if (typeof value === 'object' && value !== null) {
     // Render nested objects as key-value pairs (no expansion)
     return (
@@ -44,13 +45,13 @@ function renderNestedContent(value) {
         {Object.keys(value).map((nestedKey) => (
           <View key={nestedKey} style={styles.nestedItem}>
             <Text style={styles.nestedKey}>{formatTitle(nestedKey)}:</Text>
-            <Text style={styles.nestedValue}>{String(value[nestedKey])}</Text>
+            {renderTextWithLargeEmojis(String(value[nestedKey]), styles.nestedValue)}
           </View>
         ))}
       </View>
     );
   } else {
-    return <Text style={styles.contentText}>{String(value)}</Text>;
+    return renderTextWithLargeEmojis(String(value), styles.contentText);
   }
 }
 
